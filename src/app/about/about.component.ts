@@ -10,6 +10,7 @@ import {
   timer,
   merge,
   Subject,
+  BehaviorSubject,
 } from "rxjs";
 import { delayWhen, filter, map, take, timeout } from "rxjs/operators";
 import { createHttpObservable } from "../common/util";
@@ -21,14 +22,21 @@ import { createHttpObservable } from "../common/util";
 })
 export class AboutComponent implements OnInit {
   ngOnInit() {
-    const subject = new Subject();
+    const subject = new BehaviorSubject(0);
 
     const series$ = subject.asObservable();
 
-    series$.subscribe(console.log);
+    series$.subscribe((val) => console.log("early sub: " + val));
 
     subject.next(1);
     subject.next(2);
     subject.next(3);
+
+    subject.complete();
+
+    setTimeout(() => {
+      series$.subscribe((val) => console.log("late sub: " + val));
+      subject.next(4);
+    }, 3000);
   }
 }
